@@ -5,7 +5,7 @@ const prod = require('./webpack.prod');
 ghpages = {
   output: {
     path: path.resolve(__dirname, `../dist/${endpoint}`),
-    publicPath: `/phaser-test-game/${endpoint}`
+    publicPath: `/https://github.com/UD-CISC374/coding-2-try-phaser-William-Fox-Cantera.git/${endpoint}`
   }
 };
 
