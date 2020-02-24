@@ -17,15 +17,16 @@ export default class MainScene extends Phaser.Scene {
   private spacebar: Phaser.Input.Keyboard.Key;
   private enemies: Phaser.Physics.Arcade.Group;
   private scoreLabel: Phaser.GameObjects.BitmapText;
-  private score: number;
   private mainTrack: Phaser.Sound.BaseSound;
   private beamSound: Phaser.Sound.BaseSound;
   private cameraOne: Phaser.Cameras.Scene2D.Camera;
-  private platforms: Phaser.Physics.Arcade.Group;
   private graphics: Phaser.GameObjects.Graphics;
   private healthBar: Phaser.GameObjects.Image;
+  private victoryTrack: Phaser.Sound.BaseSound;
+  private city_background: Phaser.GameObjects.TileSprite;
 
-  private mapSize: number = 10;
+  private score: number;
+  private mapSize: number = 7;
   private groundHeight: number = 130;
   private directionLeft: number = 90;
   private totalHealth: number = 2;
@@ -42,13 +43,18 @@ export default class MainScene extends Phaser.Scene {
     this.background.setOrigin(0, 0);
     this.background.setScrollFactor(0);
 
+    this.city_background = this.add.tileSprite(0, 0, this.scale.width, 100, "city_bg");
+    this.city_background.setOrigin(0, 0);
+    this.city_background.setScrollFactor(0);
+    this.city_background.y = 150;
+
     this.ground = this.add.tileSprite(0, 0, this.scale.width, this.groundHeight, "ground_bg");
     this.ground.setOrigin(0, 0);
     this.ground.setScrollFactor(0);
     this.ground.y = 150;
 
     // Set the length of the map to be the size of the background times 10
-    this.physics.world.setBounds(0, 0, this.scale.width * this.mapSize, this.scale.height)
+    this.physics.world.setBounds(0, 0, this.scale.width * this.mapSize, this.scale.height);
     //*********************************************************************************************************
 
     // Add the player before the camera
@@ -89,7 +95,8 @@ export default class MainScene extends Phaser.Scene {
     this.healthBar.setScrollFactor(0);
 
     this.mainTrack = this.sound.add("doom_audio"); // Main audio
-    this.beamSound = this.sound.add("beam_audio");
+    this.beamSound = this.sound.add("beam_audio"); // Laser sound effect
+    this.victoryTrack = this.sound.add("victory_song"); // Victory song when at end
     let musicConfig = {
       mute: false,
       volume: 1,
@@ -251,25 +258,32 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
+  playEnding() { // Stops the main music, destroys enemies, and plays the victory song
+    if (this.player.x >= (this.scale.width * this.mapSize-100) && this.mainTrack.isPlaying) {
+      this.mainTrack.stop();
+      this.victoryTrack.play();
+      this.enemies.clear(true, true);
+      this.add.text(this.player.x-100, this.player.y, "WINNER!!11!1!!1", {
+        font: "20px Arial",
+        bold: true,
+        fill:"magenta"});
+    }
+  }
+
   update() {
     this.player.setVelocity(0); // Makes sure player stops moving after release of button
     this.background.tilePositionX = this.cameraOne.scrollX * .3;
+    this.city_background.tilePositionX = this.cameraOne.scrollX * .6;
     this.ground.tilePositionX = this.cameraOne.scrollX;
     this.moveShip(this.ship1, 1);
     this.moveShip(this.ship2, 2);
     this.moveShip(this.ship3, 3);
     this.movePlayerManager();
-
-    if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
-      if (this.player.active) {
-        this.shootBeam();
-      }
-    }
-
     for (let i = 0; i < this.projectiles.getChildren().length; i++) {
       let beam = this.projectiles.getChildren()[i];
       beam.update(this);
     }
+    this.playEnding();
   }
 
   movePlayerManager() {
@@ -286,6 +300,12 @@ export default class MainScene extends Phaser.Scene {
         this.player.setVelocityY(-gameSettings.playerSpeed);
       } else if (this.cursorKeys.down?.isDown && !(this.player.y > 200)) {
         this.player.setVelocityY(gameSettings.playerSpeed);
+      }
+      // For shooting
+      if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+        if (this.player.active) {
+          this.shootBeam();
+        }
       }
     }
   }

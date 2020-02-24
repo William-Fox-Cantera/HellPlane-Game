@@ -8,6 +8,7 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.image("ground_bg", "assets/images/ground.png")
     this.load.image("laser_beam", "assets/images/laser.png")
     this.load.image("health_bar", "assets/images/healthBar.png")
+    this.load.image("city_bg", "assets/images/fireCity.png")
 
     this.load.spritesheet("ship", "assets/spritesheets/ship.png", {
       frameWidth: 16,
@@ -41,6 +42,7 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.bitmapFont("pixel_font", "assets/font/font.png", "assets/font/font.xml");
     this.load.audio("doom_audio", "assets/audio/TheOnlyThingTheyFearIsYou.mp3");
     this.load.audio("beam_audio", "assets/audio/beam.mp3");
+    this.load.audio("victory_song", "assets/audio/victory.mp3")
   }
 
   create() {
