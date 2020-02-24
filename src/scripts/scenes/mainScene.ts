@@ -6,6 +6,7 @@ import Explosion from "../objects/explosion";
 export default class MainScene extends Phaser.Scene {
   // Don't break encapsulation!!
   private background: Phaser.GameObjects.TileSprite;
+  private ground: Phaser.GameObjects.TileSprite;
   private ship1: Phaser.GameObjects.Sprite;
   private ship2: Phaser.GameObjects.Sprite;
   private ship3: Phaser.GameObjects.Sprite;
@@ -19,30 +20,73 @@ export default class MainScene extends Phaser.Scene {
   private score: number;
   private mainTrack: Phaser.Sound.BaseSound;
   private beamSound: Phaser.Sound.BaseSound;
+  private cameraOne: Phaser.Cameras.Scene2D.Camera;
+  private platforms: Phaser.Physics.Arcade.Group;
+  private graphics: Phaser.GameObjects.Graphics;
+  private healthBar: Phaser.GameObjects.Image;
+
+  private mapSize: number = 10;
+  private groundHeight: number = 130;
+  private directionLeft: number = 90;
+  private totalHealth: number = 2;
+  private damageTaken: number = 0;
+  private healthPercentage: number = 100;
 
   constructor() {
     super({ key: 'MainScene' });
   }
 
   create() {
-    this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, "background");
+    // Scene Setup
+    this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, "hell_bg");
     this.background.setOrigin(0, 0);
+    this.background.setScrollFactor(0);
 
-    let graphics = this.add.graphics();
-    graphics.fillStyle(0x000000, 1);
-    graphics.beginPath();
-    graphics.moveTo(0, 0);
-    graphics.lineTo(this.scale.width, 0);
-    graphics.lineTo(this.scale.width, 20);
-    graphics.lineTo(0, 20);
-    graphics.lineTo(0, 0);
-    graphics.closePath();
-    graphics.fillPath();
+    this.ground = this.add.tileSprite(0, 0, this.scale.width, this.groundHeight, "ground_bg");
+    this.ground.setOrigin(0, 0);
+    this.ground.setScrollFactor(0);
+    this.ground.y = 150;
+
+    // Set the length of the map to be the size of the background times 10
+    this.physics.world.setBounds(0, 0, this.scale.width * this.mapSize, this.scale.height)
+    //*********************************************************************************************************
+
+    // Add the player before the camera
+    this.player = this.physics.add.sprite(this.scale.width/2 - 8, this.scale.height - 64, "player");
+    this.player.play("thrust");
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
+    this.player.setCollideWorldBounds(true);
+
+    this.cameraOne = this.cameras.main; // Set world boundaries
+    this.cameraOne.setBounds(0, 0, this.scale.width * this.mapSize, this.scale.height);
+    this.cameraOne.startFollow(this.player); // Make the camera follow the player
+
+    this.graphics = this.add.graphics();
+    this.graphics.fillStyle(0x000000, 1);
+    this.graphics.beginPath();
+    this.graphics.moveTo(0, 0);
+    this.graphics.lineTo(this.scale.width, 0);
+    this.graphics.lineTo(this.scale.width, 20);
+    this.graphics.lineTo(0, 20);
+    this.graphics.lineTo(0, 0);
+    this.graphics.closePath();
+    this.graphics.fillPath();
     this.add.text(200, 0, "Will's Game", {
       font: "10px Arial", 
       fill:"cyan"});
+    this.add.text(90, 100, "GET TO\nTHE END\n>>>>>>>>", {
+      font: "20px Arial",
+      bold: true,
+      fill:"black"});
     this.score = 0;
     this.scoreLabel = this.add.bitmapText(10, 5, "pixel_font", "SCORE ", 16);
+    this.graphics.setScrollFactor(0);
+    this.scoreLabel.setScrollFactor(0);
+
+    // Adds a health bar that follows you
+    this.healthBar = this.add.image(90, 0, "health_bar");
+    this.healthBar.setOrigin(0, 0);
+    this.healthBar.setScrollFactor(0);
 
     this.mainTrack = this.sound.add("doom_audio"); // Main audio
     this.beamSound = this.sound.add("beam_audio");
@@ -57,10 +101,12 @@ export default class MainScene extends Phaser.Scene {
     }
     this.mainTrack.play(musicConfig);
 
-
-    this.ship1 = this.add.sprite(this.scale.width/2 - 50, this.scale.height/2, "ship");
+    this.ship1 = this.add.sprite(this.player.x + 125, this.scale.height/2, "ship");
     this.ship2 = this.add.sprite(this.scale.width/2, this.scale.height/2, "ship2");
     this.ship3 = this.add.sprite(this.scale.width/2 + 50, this.scale.height/2, "ship3");
+    this.ship1.angle = this.directionLeft; // Looks like its flying left
+    this.ship2.angle = this.directionLeft;
+    this.ship3.angle = this.directionLeft;
 
     this.enemies = this.physics.add.group();
     this.enemies.add(this.ship1);
@@ -90,10 +136,6 @@ export default class MainScene extends Phaser.Scene {
       powerUp.setBounce(1); // Have the power-ups bounce off the boundaries, higher number mean more bounce
     }
 
-    this.player = this.physics.add.sprite(this.scale.width/2 - 8, this.scale.height - 64, "player");
-    this.player.play("thrust");
-    this.cursorKeys = this.input.keyboard.createCursorKeys();
-    this.player.setCollideWorldBounds(true);
     // Adds spacecbar for shooting laser
     this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     // Puts all projectiles shot from player into group
@@ -148,16 +190,25 @@ export default class MainScene extends Phaser.Scene {
       },
       callbackscope: this,
     });
+    this.damageTaken = 0; // Reset health
+    this.healthBar.setCrop(); // Resets the health bar image
+    this.healthPercentage = 100;
   }
 
   hurtPlayer(player, enemy) {
     this.resetShipPos(enemy);
+    let explosion = new Explosion(this, player.x, player.y);
+    this.healthPercentage -= 33;
+    this.healthBar.setCrop(0, 0, this.healthPercentage, 17); 
+    if (this.damageTaken < this.totalHealth) {
+      this.damageTaken += 1;
+      return
+    }
 
     if (this.player.alpha < 1) {
       return;
     }
 
-    let explosion = new Explosion(this, player.x, player.y);
     player.disableBody(true, true);
     
     // Wait before respawning player
@@ -176,16 +227,16 @@ export default class MainScene extends Phaser.Scene {
   }
 
   moveShip(ship, speed) {
-    ship.y += speed;
-    if (ship.y > this.scale.height) {
+    ship.x -= speed;
+    if (ship.x < this.player.x - 125) {
       this.resetShipPos(ship);
     }
   }
 
   resetShipPos(ship) {
-    ship.y = 0;
-    let randomX = Phaser.Math.Between(0, this.scale.width);
-    ship.x = randomX;
+    ship.x = this.player.x + 125;
+    let randomY = Phaser.Math.Between(20, this.scale.height-40); // Random position from top to ground 
+    ship.y = randomY;
   }
   
   destroyShip(pointer, gameObject) {
@@ -194,18 +245,19 @@ export default class MainScene extends Phaser.Scene {
   } 
 
   shootBeam() {
-    this.beamSound.play();
-    let beam = new Beam(this);
+    if (this.player.alpha == 1) { // Ensure player can't shoot while respawning
+      this.beamSound.play();
+      let beam = new Beam(this);
+    }
   }
 
   update() {
     this.player.setVelocity(0); // Makes sure player stops moving after release of button
+    this.background.tilePositionX = this.cameraOne.scrollX * .3;
+    this.ground.tilePositionX = this.cameraOne.scrollX;
     this.moveShip(this.ship1, 1);
     this.moveShip(this.ship2, 2);
     this.moveShip(this.ship3, 3);
-
-    this.background.tilePositionY -= .5;
-
     this.movePlayerManager();
 
     if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
@@ -216,21 +268,25 @@ export default class MainScene extends Phaser.Scene {
 
     for (let i = 0; i < this.projectiles.getChildren().length; i++) {
       let beam = this.projectiles.getChildren()[i];
-      beam.update();
+      beam.update(this);
     }
   }
 
   movePlayerManager() {
-    if (this.cursorKeys.left?.isDown) {
-      this.player.setVelocityX(-gameSettings.playerSpeed);
-    } else if (this.cursorKeys.right?.isDown) {
-      this.player.setVelocityX(gameSettings.playerSpeed);
-    }
+    if (this.player.alpha == 1) { // Ensure player can't move while respawning
+      if (this.cursorKeys.left?.isDown) {
+        this.player.angle = -this.directionLeft;
+        this.player.setVelocityX(-gameSettings.playerSpeed);
+      } else if (this.cursorKeys.right?.isDown) {
+        this.player.angle = this.directionLeft;
+        this.player.setVelocityX(gameSettings.playerSpeed);
+      }
 
-    if (this.cursorKeys.up?.isDown) {
-      this.player.setVelocityY(-gameSettings.playerSpeed);
-    } else if (this.cursorKeys.down?.isDown) {
-      this.player.setVelocityY(gameSettings.playerSpeed);
+      if (this.cursorKeys.up?.isDown && this.player.y > 20) {
+        this.player.setVelocityY(-gameSettings.playerSpeed);
+      } else if (this.cursorKeys.down?.isDown && !(this.player.y > 200)) {
+        this.player.setVelocityY(gameSettings.playerSpeed);
+      }
     }
   }
 }

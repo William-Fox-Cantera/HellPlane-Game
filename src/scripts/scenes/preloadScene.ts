@@ -1,10 +1,13 @@
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
-    super({ key: 'PreloadScene' });
+    super({ key: "PreloadScene" });
   }
 
   preload() {
-    this.load.image("background", "assets/images/background.png");
+    this.load.image("hell_bg", "assets/images/hell.png");
+    this.load.image("ground_bg", "assets/images/ground.png")
+    this.load.image("laser_beam", "assets/images/laser.png")
+    this.load.image("health_bar", "assets/images/healthBar.png")
 
     this.load.spritesheet("ship", "assets/spritesheets/ship.png", {
       frameWidth: 16,
@@ -82,7 +85,7 @@ export default class PreloadScene extends Phaser.Scene {
     });
     this.anims.create({
       key: "thrust",
-      frames: this.anims.generateFrameNumbers("player", { start: 0, end: 1 }),
+      frames: this.anims.generateFrameNumbers("player", { start: 0, end: 2 }),
       frameRate: 20,
       repeat: -1
     });

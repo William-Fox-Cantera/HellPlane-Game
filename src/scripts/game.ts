@@ -3,10 +3,10 @@ import MainScene from './scenes/mainScene';
 import PreloadScene from './scenes/preloadScene';
 import GameConfig = Phaser.Types.Core.GameConfig;
 
-export const DEFAULT_WIDTH = 256;
-export const DEFAULT_HEIGHT = 272;
+export const DEFAULT_WIDTH = 260;
+export const DEFAULT_HEIGHT = 260;
 export const gameSettings = { // General settings for the game for better organization
-    playerSpeed: 200
+    playerSpeed: 175
 }
 
 const config: GameConfig = {
