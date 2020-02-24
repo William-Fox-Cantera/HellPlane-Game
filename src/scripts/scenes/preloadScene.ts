@@ -32,17 +32,22 @@ export default class PreloadScene extends Phaser.Scene {
     });
     this.load.spritesheet("player", "assets/spritesheets/player.png", {
       frameWidth: 16,
-      frameHeight: 24
+      frameHeight: 24 
     });
     this.load.spritesheet("beam", "assets/spritesheets/beam.png", {
       frameWidth: 16,
       frameHeight: 16
+    });
+    this.load.spritesheet("confetti", "assets/spritesheets/confetti.png", {
+      frameWidth: 800,
+      frameHeight: 800
     });
 
     this.load.bitmapFont("pixel_font", "assets/font/font.png", "assets/font/font.xml");
     this.load.audio("doom_audio", "assets/audio/TheOnlyThingTheyFearIsYou.mp3");
     this.load.audio("beam_audio", "assets/audio/beam.mp3");
     this.load.audio("victory_song", "assets/audio/victory.mp3")
+    this.load.audio("explosion_sound", "assets/audio/explosionSound.mp3")
   }
 
   create() {
@@ -95,6 +100,12 @@ export default class PreloadScene extends Phaser.Scene {
       key: "beam_anim",
       frames: this.anims.generateFrameNumbers("beam", { start: 0, end: 1 }),
       frameRate: 20,
+      repeat: -1
+    });
+    this.anims.create({
+      key: "confetti_anim",
+      frames: this.anims.generateFrameNumbers("confetti", { start: 0, end: 47 }),
+      frameRate: 10,
       repeat: -1
     });
   }

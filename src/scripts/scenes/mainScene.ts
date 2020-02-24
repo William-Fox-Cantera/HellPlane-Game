@@ -24,14 +24,17 @@ export default class MainScene extends Phaser.Scene {
   private healthBar: Phaser.GameObjects.Image;
   private victoryTrack: Phaser.Sound.BaseSound;
   private city_background: Phaser.GameObjects.TileSprite;
+  private confetti: Phaser.GameObjects.Sprite;
+  private explosionSound: Phaser.Sound.BaseSound;
 
   private score: number;
   private mapSize: number = 7;
-  private groundHeight: number = 130;
   private directionLeft: number = 90;
   private totalHealth: number = 2;
   private damageTaken: number = 0;
   private healthPercentage: number = 100;
+  private heightAboveGround: number = 60;
+  private playExplosion: boolean = false;
 
   constructor() {
     super({ key: 'MainScene' });
@@ -48,13 +51,13 @@ export default class MainScene extends Phaser.Scene {
     this.city_background.setScrollFactor(0);
     this.city_background.y = 150;
 
-    this.ground = this.add.tileSprite(0, 0, this.scale.width, this.groundHeight, "ground_bg");
+    this.ground = this.add.tileSprite(0, 0, this.scale.width, 130, "ground_bg");
     this.ground.setOrigin(0, 0);
     this.ground.setScrollFactor(0);
     this.ground.y = 150;
 
     // Set the length of the map to be the size of the background times 10
-    this.physics.world.setBounds(0, 0, this.scale.width * this.mapSize, this.scale.height);
+    this.physics.world.setBounds(0, 20, this.scale.width * this.mapSize, this.scale.height-this.heightAboveGround);
     //*********************************************************************************************************
 
     // Add the player before the camera
@@ -97,6 +100,7 @@ export default class MainScene extends Phaser.Scene {
     this.mainTrack = this.sound.add("doom_audio"); // Main audio
     this.beamSound = this.sound.add("beam_audio"); // Laser sound effect
     this.victoryTrack = this.sound.add("victory_song"); // Victory song when at end
+    this.explosionSound = this.sound.add("explosion_sound"); // Explosion sound for ending
     let musicConfig = {
       mute: false,
       volume: 1,
@@ -184,11 +188,9 @@ export default class MainScene extends Phaser.Scene {
     let y = this.scale.height;
     this.player.enableBody(true, x, y, true, true);
     this.player.alpha = .5; // Small window of invulnerability
-
-    // Remove invulnerability
-    let tween = this.tweens.add({
+    let tween = this.tweens.add({ // Animation for respawning player
       targets: this.player,
-      y: this.scale.height - 64,
+      y: this.scale.height - 120,
       ease: "Power1",
       duration: 1500, 
       repeat: 0,
@@ -204,12 +206,14 @@ export default class MainScene extends Phaser.Scene {
 
   hurtPlayer(player, enemy) {
     this.resetShipPos(enemy);
-    let explosion = new Explosion(this, player.x, player.y);
-    this.healthPercentage -= 33;
-    this.healthBar.setCrop(0, 0, this.healthPercentage, 17); 
-    if (this.damageTaken < this.totalHealth) {
-      this.damageTaken += 1;
-      return
+    if (player.alpha == 1) {
+      let explosion = new Explosion(this, player.x, player.y);
+      this.healthPercentage -= 33;
+      this.healthBar.setCrop(0, 0, this.healthPercentage, 17); 
+      if (this.damageTaken < this.totalHealth) {
+        this.damageTaken += 1;
+        return
+      }
     }
 
     if (this.player.alpha < 1) {
@@ -242,7 +246,7 @@ export default class MainScene extends Phaser.Scene {
 
   resetShipPos(ship) {
     ship.x = this.player.x + 125;
-    let randomY = Phaser.Math.Between(20, this.scale.height-40); // Random position from top to ground 
+    let randomY = Phaser.Math.Between(20, this.scale.height-this.heightAboveGround); // Random position from top to ground 
     ship.y = randomY;
   }
   
@@ -267,6 +271,16 @@ export default class MainScene extends Phaser.Scene {
         font: "20px Arial",
         bold: true,
         fill:"magenta"});
+      this.confetti = this.add.sprite(this.scale.width*this.mapSize-100, this.scale.height/2, "confetti");
+      this.confetti.play("confetti_anim");
+      this.playExplosion = true;
+    }
+    if (!this.victoryTrack.isPlaying && this.playExplosion) {
+      this.explosionSound.play();
+      this.player.setTexture("explosion");
+      this.player.play("explode");
+      this.player.disableInteractive; // THE END
+      this.playExplosion = false;
     }
   }
 
@@ -296,9 +310,9 @@ export default class MainScene extends Phaser.Scene {
         this.player.setVelocityX(gameSettings.playerSpeed);
       }
 
-      if (this.cursorKeys.up?.isDown && this.player.y > 20) {
+      if (this.cursorKeys.up?.isDown) {
         this.player.setVelocityY(-gameSettings.playerSpeed);
-      } else if (this.cursorKeys.down?.isDown && !(this.player.y > 200)) {
+      } else if (this.cursorKeys.down?.isDown) {
         this.player.setVelocityY(gameSettings.playerSpeed);
       }
       // For shooting
