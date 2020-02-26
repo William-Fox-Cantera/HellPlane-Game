@@ -270,12 +270,13 @@ export default class MainScene extends Phaser.Scene {
       this.add.text(this.player.x-100, this.player.y, "WINNER!!11!1!!1", {
         font: "20px Arial",
         bold: true,
-        fill:"magenta"});
-      this.confetti = this.add.sprite(this.scale.width*this.mapSize-100, this.scale.height/2, "confetti");
+        fill:"darkblue"});
+      this.confetti = this.add.sprite(this.scale.width*this.mapSize-130, (this.scale.height/2)+125, "confetti");
       this.confetti.play("confetti_anim");
       this.playExplosion = true;
     }
     if (!this.victoryTrack.isPlaying && this.playExplosion) {
+      this.confetti.destroy();
       this.explosionSound.play();
       this.player.setTexture("explosion");
       this.player.play("explode");

@@ -39,8 +39,8 @@ export default class PreloadScene extends Phaser.Scene {
       frameHeight: 16
     });
     this.load.spritesheet("confetti", "assets/spritesheets/confetti.png", {
-      frameWidth: 800,
-      frameHeight: 800
+      frameWidth: 512,
+      frameHeight: 512
     });
 
     this.load.bitmapFont("pixel_font", "assets/font/font.png", "assets/font/font.xml");
