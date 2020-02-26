@@ -276,8 +276,17 @@ export default class MainScene extends Phaser.Scene {
       this.playExplosion = true;
     }
     if (!this.victoryTrack.isPlaying && this.playExplosion) {
+      let explosionConfig = {
+        mute: false,
+        volume: 10,
+        rate: 1,
+        detune: 0,
+        seek: 0,
+        loop: false,
+        delay: 0
+      }
       this.confetti.destroy();
-      this.explosionSound.play();
+      this.explosionSound.play(explosionConfig);
       this.player.setTexture("explosion");
       this.player.play("explode");
       this.player.disableInteractive; // THE END
