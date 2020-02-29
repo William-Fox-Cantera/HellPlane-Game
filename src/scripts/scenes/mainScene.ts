@@ -452,7 +452,6 @@ export default class MainScene extends Phaser.Scene {
         this.player.angle = this.directionLeft;
         this.player.setVelocityX(gameSettings.playerSpeed);
       }
-
       if (this.cursorKeys.up?.isDown) {
         this.player.setVelocityY(-gameSettings.playerSpeed);
       } else if (this.cursorKeys.down?.isDown) {
