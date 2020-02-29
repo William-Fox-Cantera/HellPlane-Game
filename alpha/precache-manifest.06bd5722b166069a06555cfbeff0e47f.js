@@ -8,11 +8,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/audio/beam.mp3"
   },
   {
+    "revision": "625bb777c839960eadac82747a7302f6",
+    "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/audio/explosionSound.mp3"
+  },
+  {
     "revision": "1c3dbe4c944283e726426c2c796e1908",
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/audio/victory.mp3"
   },
   {
-    "revision": "f88c9ead4234b6c37f7818526e05b0ca",
+    "revision": "cde452050a52b767cf23f4aa03749a4b",
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/citations.md"
   },
   {
@@ -48,6 +52,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/spritesheets/beam.png"
   },
   {
+    "revision": "738559c72534c97f7e6df54bedca8af2",
+    "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/spritesheets/confetti.png"
+  },
+  {
     "revision": "ea801e18a4f14b0c4740b555536b414e",
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaassets/spritesheets/explosion.png"
   },
@@ -76,8 +84,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphafavicon.ico"
   },
   {
-    "revision": "729363ceb48698f133ba",
-    "url": "/coding-2-try-phaser-William-Fox-Cantera/alphagen.main.7cd2aba1274250bb987c.bundle.js"
+    "revision": "88350fc23fac0a2678c3",
+    "url": "/coding-2-try-phaser-William-Fox-Cantera/alphagen.main.ad4bbba71bb4f72bf9df.bundle.js"
   },
   {
     "revision": "7e3abc0967d71642756e",
@@ -92,7 +100,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaicons/icons-512.png"
   },
   {
-    "revision": "68ab000acb25ad993fcc49df11ecafae",
+    "revision": "f9e7b8d1d4230925b0355cdcaafd33d0",
     "url": "/coding-2-try-phaser-William-Fox-Cantera/alphaindex.html"
   },
   {

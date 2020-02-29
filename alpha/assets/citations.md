@@ -9,4 +9,6 @@ City background: https://www.kindpng.com/imgv/ThThho_fire-city-pixel-art-hd-png-
 Ground background: https://www.reddit.com/r/PixelArt/comments/8ql7ol/ocnewbieccwip_ground_tiles_ive_been_working_on/
 HealthBar image: https://www.cleanpng.com/free/health-bar.html
 Victory Music: https://www.youtube.com/watch?v=3suGfhnT2Sg&t=11s
+Confetti Animation: https://opengameart.org/content/confetti-effect-spritesheet
+Explosion Sound: https://www.youtube.com/watch?v=bhZs3ALdL7Y
 
